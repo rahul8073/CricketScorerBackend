@@ -2,13 +2,23 @@ const express=require('express');
 require('dotenv').config()
 const user=require('./Models/User')
 const Match=require('./Models/Match')
-const http=require('http')
-const socketIo=require('socket.io');
 const { default: mongoose } = require('mongoose');
 const User = require('./Models/User');
 const app=express();
-const Server=http.createServer(app)
-const io=socketIo(Server);
+app.use(require('cors')());
+const http = require('http');
+const server = http.createServer(app);
+
+const io = require("socket.io")(server, {
+    cors: {
+        origin: '*', // Replace '*' with your React Native app URL if in production
+        methods: ['GET', 'POST'],
+      },
+      transports: ['websocket'], // Force WebSocket
+})
+app.get("/",(req,res)=>{
+res.send("Server worked properly")
+})
 let currentBall=0
 io.on('connection',(socket)=>{
     console.log("A user connected",socket.id);
@@ -237,7 +247,7 @@ mongoose.connect(process.env.mongodb_url)
 
 
 
-Server.listen(5000,()=>{
-    console.log('server started port 5000');
+server.listen(5000,'0.0.0.0',()=>{
+    console.log('server started http://localhost:5000');
     
 })
